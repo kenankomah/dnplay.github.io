@@ -1,0 +1,86 @@
+body, html {
+	margin: 0;
+	padding: 0;
+	font-family: Helvetica, Arial, sans-serif;
+	font-weight: bold;
+	color: #BFBFBF;
+	text-align: center;
+}
+
+table {
+	border-spacing: 5px 10px;
+}
+
+th {
+	font-size: 20px;
+}
+
+a {
+	color: red;
+}
+
+h1 {
+	font-size: 5vh;
+}
+
+h2 {
+	margin: 0;
+	padding: 0;
+}
+
+p {
+	font-size: 2.5vh;
+}
+
+.header {
+	font-size: 2.8vh;
+	height: 5vh;
+}
+
+.page-container {
+	min-height: 100vh;
+	box-sizing: border-box;
+	background-color: #282828;
+}
+
+.middle {
+	min-height: 90vh;
+}
+
+#double-table {
+	margin: 0 auto;
+	width: 50%;
+}
+
+#maternal-haplogroup {
+	position: center;
+	float: left;
+}
+
+#paternal-haplogroup {
+	position: center;
+	float: right;
+}
+
+.haplogroup-table {
+	display: inline-block;
+}
+
+#drop-zone {
+	border: 2px dashed #bbb;
+	border-radius: 5px;
+	min-height: 90vh;
+}
+
+.footer {
+	height: 5vh;
+}
+
+.footer-links {
+	font-size: 2vh;
+	line-height: 1.6;
+}
+
+.footer-copyright {
+	font-size: 1.5vh;
+}
