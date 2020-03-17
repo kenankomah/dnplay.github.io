@@ -15,17 +15,25 @@ class CSVFile {
             let row = new Array();
             while (i < len) {
                 if (line[i++] != '"') {
-                    throw new Error('InvalidCSV');
+                    throw new Error('InvalidCSV: ' + i + " vs " + line);
                 }
-                let next = line.indexOf('"', i);
+                let next = line.indexOf('",', i);
                 if (next == -1) {
-                    throw new Error('InvalidCSV');
+                    next = line.indexOf('"\r');
+                    if (next != -1) {
+                        break;
+                    }
+                    next = line.indexOf('"\n');
+                    if (next != -1) {
+                        break;
+                    }
+                    throw new Error('InvalidCSV: ' + i + " vs " + line);
                 }
                 row.push(line.substr(i, next - i));
                 i = next + 1;
                 if (len - i <= 1) break;
                 if (i < len && line[i++] != ',') {
-                    throw new Error('InvalidCSV');
+                    throw new Error('InvalidCSV: ' + i + " vs " + line);
                 }
             }
             this.rows.push(row);
