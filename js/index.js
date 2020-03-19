@@ -92,84 +92,88 @@ class CSVFile {
 }
 
 function createTable(id, name, data) {
-	let table = document.createElement('table');
-	table.setAttribute('class', 'haplogroup-table');
-	table.setAttribute('id', id);
+    let table = document.createElement('table');
+    table.setAttribute('class', 'haplogroup-table');
+    table.setAttribute('id', id);
 
-	let tr = document.createElement('tr');
-	let th = document.createElement('th');
-	th.appendChild(document.createTextNode(name));
-	tr.appendChild(th);
-	th = document.createElement('th');
-	th.appendChild(document.createTextNode('Count'));
-	tr.append(th);
-	table.appendChild(tr);
+    let tr = document.createElement('tr');
+    let th = document.createElement('th');
+    th.appendChild(document.createTextNode(name));
+    tr.appendChild(th);
+    th = document.createElement('th');
+    th.appendChild(document.createTextNode('Count'));
+    tr.append(th);
+    table.appendChild(tr);
 
-	for (let i = 0; i < data.length; ++i) {
-		let tr = document.createElement('tr');
-		let td = document.createElement('td');
-		td.appendChild(document.createTextNode(data[i][0]));
-		tr.appendChild(td);
-		td = document.createElement('td');
-		td.appendChild(document.createTextNode(data[i][1]));
-		tr.append(td);
-		table.appendChild(tr);
-	}
+    for (let i = 0; i < data.length; ++i) {
+        let tr = document.createElement('tr');
+        let td = document.createElement('td');
+        td.appendChild(document.createTextNode(data[i][0]));
+        tr.appendChild(td);
+        td = document.createElement('td');
+        td.appendChild(document.createTextNode(data[i][1]));
+        tr.append(td);
+        table.appendChild(tr);
+    }
 
-	return table;
+    return table;
 }
 
 function doFileStuff(file) {
-	var reader = new FileReader();
+    var reader = new FileReader();
 
-	reader.onload = function(e) {
-		let x = new CSVFile(e.target.result);
-		let mHaplogroups = x.getHaplogroupData('Maternal Haplogroup');
-		let pHaplogroups = x.getHaplogroupData('Paternal Haplogroup');
+    reader.onload = function(e) {
+        try {
+            let x = new CSVFile(e.target.result);
+            let mHaplogroups = x.getHaplogroupData('Maternal Haplogroup');
+            let pHaplogroups = x.getHaplogroupData('Paternal Haplogroup');
 
-		let t1 = createTable('maternal-haplogroup', 'mtDNA Haplogroup', mHaplogroups);
-		let t2 = createTable('paternal-haplogroup', 'Y-DNA Haplogroup', pHaplogroups);
+            let t1 = createTable('maternal-haplogroup', 'mtDNA Haplogroup', mHaplogroups);
+            let t2 = createTable('paternal-haplogroup', 'Y-DNA Haplogroup', pHaplogroups);
 
-		let table = document.createElement('table');
-		table.setAttribute('id', 'double-table');
-		table.appendChild(t1);
-		table.appendChild(t2);
+            let table = document.createElement('table');
+            table.setAttribute('id', 'double-table');
+            table.appendChild(t1);
+            table.appendChild(t2);
 
-		let instructions = document.getElementById('instructions');
-		instructions.parentNode.removeChild(instructions);
+            let instructions = document.getElementById('instructions');
+            instructions.parentNode.removeChild(instructions);
 
-		let dropZone = document.getElementById('drop-zone');
-		dropZone.style.height = null;
-		dropZone.appendChild(table);
-	};
+            let dropZone = document.getElementById('drop-zone');
+            dropZone.style.height = null;
+            dropZone.appendChild(table);
+        } catch (error) {
+            alert(error);
+        }
+    };
 
-	reader.readAsText(file);
+    reader.readAsText(file);
 
 }
 
 function handleFileSelect(evt) {
-	// TODO: make sure there's only 1 file
+    // TODO: make sure there's only 1 file
 
-	doFileStuff(evt.target.files[0]);
+    doFileStuff(evt.target.files[0]);
 }
 
 function handleDragOver(evt) {
-	evt.stopPropagation();
-	evt.preventDefault();
-	evt.dataTransfer.dropEffect = 'copy';
+    evt.stopPropagation();
+    evt.preventDefault();
+    evt.dataTransfer.dropEffect = 'copy';
 }
 
 function handleDrop(evt) {
-	evt.stopPropagation();
-	evt.preventDefault();
-	doFileStuff(evt.dataTransfer.files[0]);
+    evt.stopPropagation();
+    evt.preventDefault();
+    doFileStuff(evt.dataTransfer.files[0]);
 }
 
 function setupListeners() {
-	document.getElementById('myfile').addEventListener('change', handleFileSelect, false);
-	let dropZone = document.getElementById('all-might');
-	dropZone.addEventListener('dragover', handleDragOver, false);
-	dropZone.addEventListener('drop', handleDrop, false);
+    document.getElementById('myfile').addEventListener('change', handleFileSelect, false);
+    let dropZone = document.getElementById('all-might');
+    dropZone.addEventListener('dragover', handleDragOver, false);
+    dropZone.addEventListener('drop', handleDrop, false);
 }
 
 setupListeners();
