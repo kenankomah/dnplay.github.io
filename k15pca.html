@@ -1,0 +1,71 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>DNPlay - K15 PCA</title>
+  <meta name="description" content="DNPlay">
+  <meta name="author" content="DNPlay">
+
+  <!-- <link rel="stylesheet" href=""> -->
+</head>
+<body>
+<p><b>A modification of the original version found at: </b><a href='https://gen3553.pagesperso-orange.fr/ADN/K15.htm'>https://gen3553.pagesperso-orange.fr/ADN/K15.htm</a></p>
+<a href="https://gen3553.pagesperso-orange.fr/ADN/K15V4.png">
+<input type="text" id='coord_text' size='200'>
+<br>
+<input type='button' id='add' value='Add'>
+<input type='button' id='reset' value='Reset'>
+<canvas id='pca_canvas'></canvas>
+<script src='k15pca.js'></script>
+<script>
+let canvas = document.getElementById('pca_canvas');
+let ctx = canvas.getContext('2d');
+let coord_text = document.getElementById('coord_text');
+coord_text.value = 'Italy_Calabria,8.07,12.92,4.55,1.98,17.48,15.12,31.66,6.46,0.13,0.11,0.04,0.09,0.36,0.97,0.07';
+
+const image = new Image();
+image.src = 'https://i.imgur.com/s6gaGhd.png';
+image.onload = () => {
+	canvas.height = image.height;
+	canvas.width = image.width;
+	ctx.drawImage(image, 0, 0);
+	setup();
+}
+
+function get_vals() {
+	let vals = coord_text.value.split(',');
+	for (let i = 1; i < vals.length; ++i) {
+		if (isNaN(vals[i])) {
+			return null;
+		}
+	}
+	return vals;
+}
+
+function setup() {
+	let add_button = document.getElementById('add');
+	add_button.addEventListener('click', (event) => {
+		let v = get_vals();
+		if (v == null) {
+			alert('Invalid input...');
+		} else {
+			let coords = calc(v[1],v[2],v[3],v[4],v[5],v[6],v[7],
+				v[8],v[9],v[10],v[11],v[12],v[13],v[14],v[15]);
+			let x = coords[0];
+			let y = coords[1];
+			ctx.fillStyle = 'red';
+			ctx.fillRect(x-7, y-7, 14, 14);
+		}
+	});
+
+	let reset_button = document.getElementById('reset');
+	reset_button.addEventListener('click', (event) => {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.drawImage(image, 0, 0);
+	});
+}
+</script>
+</body>
+</html>
