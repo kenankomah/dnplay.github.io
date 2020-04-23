@@ -36,10 +36,25 @@ image.onload = () => {
 
 function get_vals() {
 	let vals = coord_text.value.split(',');
+	let sum = 0.0;
+	if (vals.length != 16) {
+		if (vals.length < 16) {
+			alert('Invalid input: Too few values');
+		} else {
+			alert('Invalid input: Too many values')
+		}
+		return null;
+	}
 	for (let i = 1; i < vals.length; ++i) {
 		if (isNaN(vals[i])) {
+			alert('Invalid input: K15 values must be numeric');
 			return null;
 		}
+		sum += Number(vals[i]);
+	}
+	if (sum < 99.9 || sum > 100.1) {
+		alert('Invalid input: K15 values must add up to 100, you got ' + sum);
+		return null;
 	}
 	return vals;
 }
@@ -48,9 +63,7 @@ function setup() {
 	let add_button = document.getElementById('add');
 	add_button.addEventListener('click', (event) => {
 		let v = get_vals();
-		if (v == null) {
-			alert('Invalid input...');
-		} else {
+		if (v != null) {
 			let coords = calc(v[1],v[2],v[3],v[4],v[5],v[6],v[7],
 				v[8],v[9],v[10],v[11],v[12],v[13],v[14],v[15]);
 			let x = coords[0];
