@@ -1,0 +1,19 @@
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.textholder {
+	display: inline-block;
+}
+
+.buttonholder {
+	display: inline-block;
+}
+
+textarea {
+	width: 35vw;
+	height: 75vh;
+	resize: none;
+}
