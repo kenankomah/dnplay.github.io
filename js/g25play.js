@@ -84,12 +84,14 @@ function Average() {
 
 		let labels = vals[0].split(":");
 
-		let populationName = labels[0];
-		if (populationName in num) {
-			num[populationName] += 1;
-		} else {
-			num[populationName] = 1;
-			sum[populationName] = Array(numVals - 1).fill(0.0);
+		for (let i = 0; i < labels.length - 1; ++i) {
+			let populationName = labels[i];
+			if (populationName in num) {
+				num[populationName] += 1;
+			} else {
+				num[populationName] = 1;
+				sum[populationName] = Array(numVals - 1).fill(0.0);
+			}
 		}
 
 		for (let j = 1; j < numVals; ++j) {
@@ -101,7 +103,9 @@ function Average() {
 				return;
 			}
 
-			sum[populationName][j-1] += val;
+			for (let i = 0; i < labels.length - 1; ++i) {
+				sum[labels[i]][j-1] += val;
+			}
 		}
 	}
 
