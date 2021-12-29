@@ -114,7 +114,8 @@ function Average() {
 	for (let x in sum) {
 		outputStr += x;
 		for (let y in sum[x]) {
-			outputStr += "," + (sum[x][y] / num[x]);
+			let average = sum[x][y] / num[x];
+			outputStr += "," + Number(average.toPrecision(8));
 		}
 		outputStr += "\n";
 	}
