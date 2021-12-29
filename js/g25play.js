@@ -44,7 +44,8 @@ function Scale() {
 				return;
 			}
 
-			newStr += "," + (val * Math.sqrt(eigenvalues[j-1]));
+			let scaled = val * Math.sqrt(eigenvalues[j-1]);
+			newStr += "," + Number(scaled.toPrecision(8));
 		}
 
 		outputStr += newStr + "\n";
