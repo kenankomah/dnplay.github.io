@@ -29,7 +29,7 @@
 
 const target = document.getElementById('target');
 target.focus();
-target.placeholder = "Instructions:\nVisit https://www.ancestry.com/dna/origins/inheritance/api/v1/ethnicities/YOUR-ID-GOES-HERE/chromosomes?version=2022\nand paste the output into this box.";
+target.placeholder = "Visit https://www.ancestry.com/dna/origins/inheritance/api/v1/ethnicities/YOUR-ID-GOES-HERE/chromosomes?version=2022\nand paste the output into this box.";
 
 target.addEventListener('input', function (event) {
 	target.value = '';
@@ -202,14 +202,18 @@ const ids = {
 target.addEventListener('paste', (event) => {
 	event.preventDefault();
 
-	const pasted_string = (event.clipboardData || window.clipboardData).getData('text');
+	let pasted_string = (event.clipboardData || window.clipboardData).getData('text');
 
-	// some people reported getting slightly different json, so doing this method instead:
+	// some people had newlines in their pasted strings, so remove any newlines.
+	pasted_string = pasted_string.replace(/[\n\r]/g, '');
+
+	// some people reported getting slightly different json, so search for the relevant
+	// parts only to parse.
 	let pos1 = pasted_string.search('"parent1');
 	let pos2 = pasted_string.search('phaseFlips');
 
 	for (let i = pos1-1; i >= 0; --i) {
-		if (pasted_string[i] == '"') {
+		if (pasted_string[i] == '{') {
 			pos1 = i;
 			break;
 		}		
@@ -227,8 +231,15 @@ target.addEventListener('paste', (event) => {
 		return;
 	}
 
+	// some people provided data showing no escape characters, so adding them
+	// if they don't exist to avoid errors.
+	pasted_string = pasted_string.substr(pos1, pos2-pos1);
+	if (pasted_string.search('\\\\') == -1) {
+		pasted_string = pasted_string.replaceAll('"', '\\"');
+	}
+
 	try {
-		const json_data = JSON.parse('{"data":' + pasted_string.substr(pos1, pos2-pos1) + '}"}');	
+		const json_data = JSON.parse('{"data":"' + pasted_string + '}"}');	
 		const chromosomeData = JSON.parse(json_data['data']);
 
 		let result = {}
