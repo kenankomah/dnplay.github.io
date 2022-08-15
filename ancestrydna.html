@@ -203,57 +203,85 @@ target.addEventListener('paste', (event) => {
 	event.preventDefault();
 
 	const pasted_string = (event.clipboardData || window.clipboardData).getData('text');
-	
-	const obj = JSON.parse(pasted_string);
-	const chromosomeData = JSON.parse(obj['item']['chromosomeData']);
-	
-	let result = {}
-		
-	let total_length = 0;
 
-	for (let i = 1; i <= 2; ++i) {
-		for (let j = 1; j <= 22; ++j) {
-			const data = chromosomeData['parent' + i.toString()][j.toString()];
-			for (const segment in data) {
-				const region = data[segment]['region'];
-				const length = data[segment]['windows'][1] - data[segment]['windows'][0];
-				total_length += length;
-				if (region in result) {
-					result[region] += parseInt(length);
-				} else {
-					result[region] = parseInt(length);
+	// some people reported getting slightly different json, so doing this method instead:
+	let pos1 = pasted_string.search('"parent1');
+	let pos2 = pasted_string.search('phaseFlips');
+
+	for (let i = pos1-1; i >= 0; --i) {
+		if (pasted_string[i] == '"') {
+			pos1 = i;
+			break;
+		}		
+	}
+
+	for (let i = pos2; i >= 0; --i) {
+		if (pasted_string[i] == ',') {
+			pos2 = i;
+			break;
+		}
+	}
+
+	if (pos1 == -1 || pos2 == -1) {
+		alert("Invalid input! Make sure you're copying and pasting the response from the correct URL!");
+		return;
+	}
+
+	try {
+		const json_data = JSON.parse('{"data":' + pasted_string.substr(pos1, pos2-pos1) + '}"}');	
+		const chromosomeData = JSON.parse(json_data['data']);
+
+		let result = {}
+			
+		let total_length = 0;
+
+		for (let i = 1; i <= 2; ++i) {
+			for (let j = 1; j <= 22; ++j) {
+				const data = chromosomeData['parent' + i.toString()][j.toString()];
+				for (const segment in data) {
+					const region = data[segment]['region'];
+					const length = data[segment]['windows'][1] - data[segment]['windows'][0];
+					total_length += length;
+					if (region in result) {
+						result[region] += parseInt(length);
+					} else {
+						result[region] = parseInt(length);
+					}
 				}
 			}
 		}
-	}
-	
-	let sorted_result = Object.keys(result).map(function(key) {
-		return [key, result[key]];
-	});
-
-	sorted_result.sort(function(first, second) {
-		return second[1] - first[1];
-	});
-
-	let new_table = document.createElement('table');
-	new_table.className = 'table table-dark';
-
-	for (const i in sorted_result) {
-		let tr = document.createElement('tr');
-		let td = document.createElement('td');
-		td.appendChild(document.createTextNode(ids[sorted_result[i][0]]));
-		tr.appendChild(td);
-
-		td = document.createElement('td');
-		td.appendChild(document.createTextNode((100*(sorted_result[i][1]/total_length)).toFixed(2) + ' %'));
-		tr.appendChild(td);
 		
-		new_table.appendChild(tr);
-	}
+		let sorted_result = Object.keys(result).map(function(key) {
+			return [key, result[key]];
+		});
 
-	let results_area = document.getElementById('results_area');
-	results_area.innerHTML = '';
-	results_area.appendChild(new_table);	
+		sorted_result.sort(function(first, second) {
+			return second[1] - first[1];
+		});
+
+		let new_table = document.createElement('table');
+		new_table.className = 'table table-dark';
+
+		for (const i in sorted_result) {
+			let tr = document.createElement('tr');
+			let td = document.createElement('td');
+			td.appendChild(document.createTextNode(ids[sorted_result[i][0]]));
+			tr.appendChild(td);
+
+			td = document.createElement('td');
+			td.appendChild(document.createTextNode((100*(sorted_result[i][1]/total_length)).toFixed(2) + ' %'));
+			tr.appendChild(td);
+			
+			new_table.appendChild(tr);
+		}
+
+		let results_area = document.getElementById('results_area');
+		results_area.innerHTML = '';
+		results_area.appendChild(new_table);	
+	} catch {
+		alert("Could not read the pasted JSON. Make sure you're copying and pasting the right thing...");
+		return;
+	}
 });
 
 </script>
