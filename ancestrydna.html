@@ -276,7 +276,9 @@ target.addEventListener('paste', (event) => {
 		for (const i in sorted_result) {
 			let tr = document.createElement('tr');
 			let td = document.createElement('td');
-			td.appendChild(document.createTextNode(ids[sorted_result[i][0]]));
+			
+			const pop_key = sorted_result[i][0];
+			td.appendChild(document.createTextNode(ids[pop_key] || pop_key));
 			tr.appendChild(td);
 
 			td = document.createElement('td');
