@@ -21,7 +21,7 @@
 			text-align: center;
 		}
 		
-		#outputLink, #invalidBtn {
+		#outputLink, #invalidBtn, #infoBtn {
 			width: 100%;
 		}
 		
@@ -58,7 +58,16 @@
   <div id="resultArea" class="container mt-3" style="display: none;">
     <h2 class="text-center">Results</h2>
 	<div class="row justify-content-center mt-4">
-		<div id="resultTable"></div>
+	  <div id="resultTable"></div>
+	</div>
+  </div>
+  <div id="instructionToggle" class="container mt-3" style="display: none;">
+	<div class="row justify-content-center mt-4">
+	  <div class="col-md-6">
+	    <div class="alert alert-info">
+	      <button id="infoBtn" class="btn btn-info mb-2">Click To View Instructions</button>
+	    </div>
+	  </div>
 	</div>
   </div>
   <div id="instructionArea" class="container mt-3">
@@ -66,14 +75,14 @@
     <div class="row justify-content-center mt-4">
       <div class="col-md-6">
         <div class="alert alert-info">
-          <p><strong>Step 1:</strong> Go to <a href="https://www.ancestry.com/dna/insights/" target="_blank">https://www.ancestry.com/dna/insights/</a></p>
+          <p><strong>Step 1:</strong> Go to <a href="https://www.ancestry.com/dna/insights/" target="_blank">ancestry.com/dna/insights/</a></p>
 		</div>
 		<div class="alert alert-info">
-		  <p><strong>Step 2:</strong> Copy your unique code from the end of the URL</code></p>
-		  <p style="color: gray">https://www.ancestry.com/dna/insights/<span style="color: red;">YOUR-CODE-IS-HERE</span></p>
+		  <p><strong>Step 2:</strong> Copy your unique code from the end of the URL</p>
+		  <p style="color: gray">.../dna/insights/<span style="color: red;">YOUR-CODE</span></p>
 		</div>
 		<div class="alert alert-info">
-		  <p class="mb-2"><strong>Step 3:</strong> Paste code here:</p>
+		  <p class="mb-2"><strong>Step 3:</strong> Paste your code here:</p>
           <input type="text" id="codeInput" class="form-control mb-2" placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" oninput="validateCode()">
 		</div>
 		<div class="alert alert-info">
@@ -108,6 +117,13 @@
 	const yearSelect = document.getElementById('yearSelect');
 	const outputLink = document.getElementById('outputLink');
 	const invalidBtn = document.getElementById('invalidBtn');
+
+	const infoBtn = document.getElementById('infoBtn');
+	infoBtn.addEventListener('click', function (event) {
+		document.getElementById("instructionArea").style.display = "block";
+		document.getElementById("resultArea").style.display = "none";
+		document.getElementById("instructionToggle").style.display = "none";
+	});
 	
 	const ids = {
 		"2021_001": "Senegal",
@@ -477,7 +493,10 @@
 			let results_area = document.getElementById('resultTable');
 			results_area.innerHTML = '';
 			results_area.appendChild(new_table);
-			document.getElementById("resultArea").style.display = "block";			
+			
+			document.getElementById("instructionArea").style.display = "none";
+			document.getElementById("resultArea").style.display = "block";
+			document.getElementById("instructionToggle").style.display = "block";
 		} catch {
 			alert("Could not read the pasted JSON. Make sure you're copying and pasting the right thing...");
 			return;
