@@ -1,29 +1,43 @@
-<!DOCTYPE html>
 
+<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>DNPlay - AncestryDNA Result Displayer</title>
         <meta name="description" content="DNPlay" />
         <meta name="author" content="DNPlay" />
 
         <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
             rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
-            integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+            integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9"
             crossorigin="anonymous"
         />
 
         <style>
-            .center {
-                display: flex;
-                justify-content: center;
-                align-items: center;
+            .alert.alert-info {
+                text-align: center;
+            }
+
+            .alert.alert-info p {
+                margin: 0;
             }
 
             table.table-dark th {
                 background-color: #000000;
+            }
+
+            input,
+            textarea,
+            select {
+                text-align: center;
+            }
+
+            #outputLink,
+            #invalidBtn,
+            #infoBtn {
+                width: 100%;
             }
 
             .table {
@@ -38,6 +52,11 @@
                 overflow: hidden;
             }
 
+            td,
+            th {
+                padding: 0 15px;
+            }
+
             tbody td {
                 border-radius: 10px;
             }
@@ -49,32 +68,137 @@
             tr:nth-child(even) {
                 background-color: #212529;
             }
-
-            td {
-                padding: 0 15px !important;
-            }
         </style>
     </head>
-
     <body>
-        <div class="form-group">
-            <textarea
-                class="form-control"
-                id="target"
-                style="resize: none; text-align: center"
-            ></textarea>
+        <div id="resultArea" class="container mt-3" style="display: none">
+            <h2 class="text-center">Results</h2>
+            <div class="row justify-content-center mt-4">
+                <div id="resultTable"></div>
+            </div>
         </div>
-        <div class="center">
-            <div id="results_area"></div>
+        <div
+            id="instructionToggle"
+            class="container mt-3"
+            style="display: none"
+        >
+            <div class="row justify-content-center mt-4">
+                <div class="col-md-6">
+                    <div class="alert alert-info">
+                        <button id="infoBtn" class="btn btn-info mb-2">
+                            Click To View Instructions
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <script>
-            const target = document.getElementById("target");
-            target.focus();
-            target.placeholder =
-                "Visit https://www.ancestry.com/dna/origins/inheritance/api/v1/ethnicities/YOUR-ID-GOES-HERE/chromosomes?version=2022\nand paste the output into this box.";
+        <div id="instructionArea" class="container mt-3">
+            <h2 class="text-center">Instructions</h2>
+            <div class="row justify-content-center mt-4">
+                <div class="col-md-6">
+                    <div class="alert alert-info">
+                        <p>
+                            <strong>Step 1:</strong> Go to
+                            <a
+                                href="https://www.ancestry.com/dna/insights/"
+                                target="_blank"
+                                >ancestry.com/dna/insights/</a
+                            >
+                        </p>
+                        <p style="color: gray">
+                            NOTE: Mobile users, be sure to open all links with
+                            your default browser, not an in-app browser.
+                        </p>
+                    </div>
+                    <div class="alert alert-info">
+                        <p>
+                            <strong>Step 2:</strong> Copy your unique code from
+                            the end of the URL
+                        </p>
+                        <p style="color: gray">
+                            .../dna/insights/<span style="color: red"
+                                >YOUR-CODE</span
+                            >
+                        </p>
+                    </div>
+                    <div class="alert alert-info">
+                        <p class="mb-2">
+                            <strong>Step 3:</strong> Paste your code here:
+                        </p>
+                        <input
+                            type="text"
+                            id="codeInput"
+                            class="form-control mb-2"
+                            placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+                            oninput="validateCode()"
+                        />
+                    </div>
+                    <div class="alert alert-info">
+                        <p class="mb-2">
+                            <strong>(Optional) Step 3.5:</strong> Select a year:
+                        </p>
+                        <select
+                            id="yearSelect"
+                            class="form-control mb-2"
+                            onchange="validateCode()"
+                        >
+                            <option value="2024">2024</option>
+                            <option value="2023">2023</option>
+                            <option value="2022">2022</option>
+                        </select>
+                    </div>
+                    <div class="alert alert-info">
+                        <p class="mb-2">
+                            <strong>Step 4:</strong> Click the generated link
+                            below:
+                        </p>
+                        <div id="linkArea">
+                            <a
+                                id="outputLink"
+                                class="btn btn-success btn-block mb-2"
+                                href=""
+                                target="_blank"
+                                style="display: none"
+                                >Click Me - Link Generated</a
+                            >
+                            <button id="invalidBtn" class="btn btn-danger mb-2">
+                                Invalid Code - No Link Generated
+                            </button>
+                        </div>
+                    </div>
+                    <div class="alert alert-info">
+                        <p class="mb-2">
+                            <strong>Step 5:</strong> Paste the output here:
+                        </p>
+                        <textarea
+                            id="outputArea"
+                            class="form-control"
+                            placeholder="Paste the output that came from visiting the generated link."
+                            style="resize: none"
+                        ></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <script>
+            const target = document.getElementById("outputArea");
             target.addEventListener("input", function (event) {
                 target.value = "";
+            });
+
+            const codeInput = document.getElementById("codeInput");
+            const yearSelect = document.getElementById("yearSelect");
+            const outputLink = document.getElementById("outputLink");
+            const invalidBtn = document.getElementById("invalidBtn");
+
+            const infoBtn = document.getElementById("infoBtn");
+            infoBtn.addEventListener("click", function (event) {
+                document.getElementById("instructionArea").style.display =
+                    "block";
+                document.getElementById("resultArea").style.display = "none";
+                document.getElementById("instructionToggle").style.display =
+                    "none";
             });
 
             const ids = {
@@ -243,9 +367,17 @@
                 "00200": "Mali",
                 "00300": "Ivory Coast & Ghana",
                 "00400": "Benin & Togo",
+                "00401": "Benin & Togo",
+                "00402": "Yorubaland",
+                "00403": "Central West Africa",
                 "00500": "Nigeria",
+                "00501": "Central Nigeria",
+                "00502": "North-Central Nigeria",
+                "00503": "Nigeria",
                 "00600": "Nigeria—East Central",
                 "00700": "Cameroon, Congo & Western Bantu Peoples",
+                "00750": "Western Bantu Peoples",
+                "00760": "Twa",
                 "00800": "Southern Bantu Peoples",
                 "00900": "Eastern Bantu Peoples",
                 "01000": "Nilotic Peoples",
@@ -260,9 +392,17 @@
                 "01900": "Anatolia & the Caucasus",
                 "02000": "Iran/Persia",
                 "02100": "Burusho",
-                "02200": "Central Asia—South",
+                "02001": "Lower Central Asia",
+                "02002": "Northern Iraq & Northern Iran",
+                "02200": "Indo-Gangetic Plain",
                 "02300": "Northern India",
+                "02301": "Western Himalayas & the Hindu Kush",
+                "02302": "Gujarat",
+                "02303": "Gulf of Khambhat",
                 "02400": "Southern India",
+                "02401": "Southern India",
+                "02402": "Southwest India",
+                "02403": "The Deccan & the Gulf of Mannar",
                 "02500": "Bengal",
                 "02600": "Nepal & the Himalayan Foothills",
                 "02700": "Tibetan Peoples",
@@ -272,17 +412,19 @@
                 "03100": "Japan",
                 "03200": "Southern Japanese Islands",
                 "03300": "Northern China",
-                "03350": "Western China?",
+                "03350": "Western China",
                 "03400": "Southwestern China",
                 "03500": "Central & Eastern China",
                 "03600": "Southern China",
                 "03700": "Dai",
-                "03800": "Cambodia",
-                "03850": "Southeast Asia",
+                "03800": "Mainland Southeast Asia",
+                "03850": "Maritime Southeast Asia",
                 "03900": "Vietnam",
                 "04000": "Northern Philippines",
-                "04100": "Southern Philippines Subgroup?",
-                "04150": "Southern Philippines",
+                "04100": "Western Philippines",
+                "04150": "Central & Southern Philippines",
+                "04151": "Luzon",
+                "04152": "Western Visayas",
                 "04200": "Guam",
                 "04300": "Melanesia",
                 "04400": "Aboriginal & Torres Strait Islander",
@@ -304,14 +446,18 @@
                 "06000": "Indigenous Americas—Bolivia & Peru",
                 "06100": "Indigenous Americas—Chile",
                 "06200": "Indigenous Eastern South America",
-                "06300": "Jewish",
+                "06300": "Ashkenazi Jews",
+                "06301": "Sephardic Jews",
                 "06400": "Finland",
-                "06500": "Sweden & Denmark",
+                "06500": "Sweden",
+                "06501": "Denmark",
                 "06600": "Norway",
+                "06601": "Iceland",
                 "06700": "Baltics",
-                "06800": "Eastern Europe & Russia",
+                "06800": "Central & Eastern Europe",
+                "06801": "Russia",
                 "06900": "The Balkans",
-                "06950": "Romani",
+                "06950": "Eastern European Roma",
                 "07000": "Greece & Albania",
                 "07100": "Aegean Islands",
                 "07200": "Malta",
@@ -320,15 +466,15 @@
                 "07500": "Northern Italy",
                 "07600": "France",
                 "07700": "Germanic Europe",
+                "07701": "The Netherlands",
                 "07800": "Basque",
                 "07900": "Spain",
                 "08000": "Portugal",
                 "08100": "England & Northwestern Europe",
+                "08101": "Cornwall",
                 "08200": "Wales",
                 "08300": "Scotland",
                 "08400": "Ireland",
-                "00401": "Benin & Togo",
-                "00403": "Central West Africa",
             };
 
             function get_percentage(parent_data, pop_key, total_length) {
@@ -344,7 +490,37 @@
                 return td;
             }
 
+            function validateCode() {
+                const code = codeInput.value;
+                const codeRegex =
+                    /^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$/;
+                if (codeRegex.test(code)) {
+                    generateLink(code);
+                    outputLink.style.display = "inline-block";
+                    outputLink.classList.remove("btn-danger");
+                    outputLink.classList.add("btn-success");
+                    invalidBtn.style.display = "none";
+                } else {
+                    outputLink.style.display = "none";
+                    invalidBtn.style.display = "inline-block";
+                    invalidBtn.classList.remove("btn-success");
+                    invalidBtn.classList.add("btn-danger");
+                }
+            }
+
+            function generateLink() {
+                const code = codeInput.value;
+                const year = yearSelect.value;
+                const generatedLink =
+                    "https://www.ancestry.com/dna/origins/inheritance/api/v1/ethnicities/" +
+                    code +
+                    "/chromosomes?version=" +
+                    year;
+                outputLink.href = generatedLink;
+            }
+
             target.addEventListener("paste", (event) => {
+                // debugger;
                 event.preventDefault();
 
                 let pasted_string = (
@@ -475,9 +651,16 @@
                         new_table.appendChild(tr);
                     }
 
-                    let results_area = document.getElementById("results_area");
+                    let results_area = document.getElementById("resultTable");
                     results_area.innerHTML = "";
                     results_area.appendChild(new_table);
+
+                    document.getElementById("instructionArea").style.display =
+                        "none";
+                    document.getElementById("resultArea").style.display =
+                        "block";
+                    document.getElementById("instructionToggle").style.display =
+                        "block";
                 } catch {
                     alert(
                         "Could not read the pasted JSON. Make sure you're copying and pasting the right thing..."
@@ -485,6 +668,8 @@
                     return;
                 }
             });
+
+            validateCode();
         </script>
     </body>
 </html>
